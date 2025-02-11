@@ -2,24 +2,22 @@ Author: Jack Nguyen - anhnguyen2002@arizona.edu
 Course: Grad 533 or Undergrad 433
 Date: February 10th, 2025
 
-**PLEASE UPDATE THIS README TO INCLUDE:**
-
-- a text description of how to run your program,
-- document any idiosyncrasies, behaviors, or bugs of note that you want us to be aware of when grading, and
-- any other comments that you feel are relevant.
-
 Executing program:
+
+- Open index.html locally from your computer (right click index.html -> run with -> choose your browser of choice).
+- Click choose file, choose an image from your source folder. bunny.ppm is the default, but pic1.ppm is also provided.
+- It should run automatically after that.
 
 Description:
 
-Included files (**PLEASE ADD/UPDATE THIS LIST**):
+Included files:
 
 - index.html -- a sample html file with a canvas
-- a01.js -- a sample javascript file for functionality with the image uploading, and a method to parse PPM images
-- MathUtilities.js -- some math functions that you can use and extend yourself. It contains matrix manipulations
-- bunny.ppm -- a test image
-
-**PLEASE PROVIDE ANY ATTRIBUTION HERE**
+- a01.js -- a sample javascript file for functionality with the image uploading, a method to parse PPM images, and rotation matrices implementations to rotate the uploaded image.
+- MathUtilities.js -- complementary javascript file containing matrices' implementations.
+- bunny.ppm -- a default test image
+- pic1.ppm -- personal uploaded image
 
 - Images obtained from the following sources:
   - bunny: http://graphics.stanford.edu/data/3Dscanrep/
+  - pic1: https://steamcommunity.com/sharedfiles/filedetails/?id=1705002547
