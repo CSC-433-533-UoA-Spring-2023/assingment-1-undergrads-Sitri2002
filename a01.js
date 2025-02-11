@@ -7,18 +7,18 @@
   Student Email: anhnguyen2002@arizona.edu
 */
 
-//access DOM elements we'll use
+// Access DOM elements
 var input = document.getElementById("load_image");
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
-// The width and height of the image
+// Image properties
 var width = 0;
 var height = 0;
-// The image data
 var ppm_img_data;
+var animationRunning = false;
 
-//Function to process upload
+// Function to process upload
 var upload = function () {
 	if (input.files.length > 0) {
 		var file = input.files[0];
@@ -27,71 +27,71 @@ var upload = function () {
 		var fReader = new FileReader();
 		fReader.readAsBinaryString(file);
 
-		fReader.onload = async function (e) {
-			//if successful, file data has the contents of the uploaded file
-			var file_data = fReader.result;
-			parsePPM(file_data);
+		fReader.onload = async function () {
+			// Stop any previous animation before starting a new one
+			animationRunning = false;
+			await sleep(100);
 
-			/*
-			 * TODO: ADD CODE HERE TO DO 2D TRANSFORMATION and ANIMATION
-			 * Modify any code if needed
-			 * Hint: Write a rotation method, and call WebGL APIs to reuse the method for animation
-			 */
-
-			// *** The code below is for the template to show you how to use matrices and update pixels on the canvas.
-			// *** Modify/remove the following code and implement animation
-
-			// Create a new image data object to hold the new image
-			var centerX = width / 2;
-			var centerY = height / 2;
-			var newImageData = ctx.createImageData(width, height);
-			var transMatrix = GetTranslationMatrix(0, height); // Translate image
-			var toOriginMatrix = GetTranslationMatrix(-centerX, -centerY);
-			var fromOriginMatrix = GetTranslationMatrix(centerX, centerY);
-			var scaleMatrix = GetScalingMatrix(1, -1); // Flip image y axis
-			var angle = 0; // starting angle
-			var flipMatrix = MultiplyMatrixMatrix(transMatrix, scaleMatrix); // Mix the translation and scale matrices
-
-			// Loop through all the pixels in the image and set its color
-			while (1) {
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				angle += 1.8 % 360; // rotate a single cycle every 2s
-				var rotationMatrix = GetRotationMatrix(-angle); // calculate the new flat rotation matrix
-				var transformAndRotateMatrix = MultiplyMatrixMatrix(
-					fromOriginMatrix,
-					MultiplyMatrixMatrix(rotationMatrix, toOriginMatrix)
-				); // shift to origin, rotate, then shift back
-				matrix = MultiplyMatrixMatrix(flipMatrix, transformAndRotateMatrix); // apply the static flip matrix
-
-				for (var i = 0; i < ppm_img_data.data.length; i += 4) {
-					// Get the pixel location in x and y with (0,0) being the top left of the image
-					var pixel = [Math.floor(i / 4) % width, Math.floor(i / 4) / width, 1];
-
-					// Get the location of the sample pixel
-					var samplePixel = MultiplyMatrixVector(matrix, pixel);
-
-					// Floor pixel to integer
-					samplePixel[0] = Math.floor(samplePixel[0]);
-					samplePixel[1] = Math.floor(samplePixel[1]);
-
-					setPixelColor(newImageData, samplePixel, i);
-				}
-
-				// Draw the new image
-				ctx.putImageData(
-					newImageData,
-					canvas.width / 2 - width / 2,
-					canvas.height / 2 - height / 2
-				);
-
-				// Show matrix
-				showMatrix(matrix);
-				await sleep(100);
-			}
+			// Load and parse the new image
+			parsePPM(fReader.result);
+			startAnimation();
 		};
 	}
 };
 
+// Function to start animation
+function startAnimation() {
+	animationRunning = true;
+	var centerX = width / 2;
+	var centerY = height / 2;
+	var newImageData = ctx.createImageData(width, height);
+	var transMatrix = GetTranslationMatrix(0, height); // Translate image
+	var toOriginMatrix = GetTranslationMatrix(-centerX, -centerY); // shift to origin
+	var fromOriginMatrix = GetTranslationMatrix(centerX, centerY); // shift back to image center
+	var scaleMatrix = GetScalingMatrix(1, -1); // Flip image y axis
+	var flipMatrix = MultiplyMatrixMatrix(transMatrix, scaleMatrix); // Mix the translation and scale matrices
+
+	var angle = 0; // Starting angle
+
+	async function animate() {
+		while (animationRunning) {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			angle += 1.8 % 360; // Rotate a single cycle every 2s
+
+			var rotationMatrix = GetRotationMatrix(-angle); // Calculate the new flat rotation matrix
+			var transformAndRotateMatrix = MultiplyMatrixMatrix(
+				fromOriginMatrix,
+				MultiplyMatrixMatrix(rotationMatrix, toOriginMatrix)
+			); // shift to origin, rotate, then shift back
+			var matrix = MultiplyMatrixMatrix(flipMatrix, transformAndRotateMatrix); // apply the static flip matrix
+
+			// Loop through all the pixels in the image and set its color
+			for (var i = 0; i < ppm_img_data.data.length; i += 4) {
+				// Get the pixel location in x and y with (0,0) being the top left of the image
+				var pixel = [Math.floor(i / 4) % width, Math.floor(i / 4) / width, 1];
+				// Get the location of the sample pixel
+				var samplePixel = MultiplyMatrixVector(matrix, pixel);
+				// Floor pixel to integer
+				samplePixel[0] = Math.floor(samplePixel[0]);
+				samplePixel[1] = Math.floor(samplePixel[1]);
+				setPixelColor(newImageData, samplePixel, i);
+			}
+
+			// Draw the new image
+			ctx.putImageData(
+				newImageData,
+				canvas.width / 2 - width / 2,
+				canvas.height / 2 - height / 2
+			);
+
+			// Show transformation matrix
+			showMatrix(matrix);
+			await sleep(100);
+		}
+	}
+
+	animate();
+}
 // Show transformation matrix on HTML
 function showMatrix(matrix) {
 	for (let i = 0; i < matrix.length; i++) {
@@ -179,7 +179,6 @@ function parsePPM(file_data) {
 		canvas.width / 2 - width / 2,
 		canvas.height / 2 - height / 2
 	);
-	//ppm_img_data = ctx.getImageData(0, 0, canvas.width, canvas.height);   // This gives more than just the image I want??? I think it grabs white space from top left?
 	ppm_img_data = image_data;
 }
 
