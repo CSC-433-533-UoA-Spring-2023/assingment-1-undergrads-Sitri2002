@@ -1,5 +1,5 @@
 Author: Jack Nguyen - anhnguyen2002@arizona.edu  
-Course: Grad 533 or Undergrad 433
+Course: Undergrad 433
 Date: February 10th, 2025
 
 Executing program:
