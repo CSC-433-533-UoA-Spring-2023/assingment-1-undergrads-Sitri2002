@@ -6,9 +6,11 @@ Executing program:
 
 - Open index.html locally from your computer (right click index.html -> run with -> choose your browser of choice).
 - Click choose file, choose an image from your source folder. bunny.ppm is the default, but pic1.ppm is also provided.
-- It should run automatically after that.
+- It should run automatically and rotate the image after that.
 
 Description:
+
+This program takes an uploaded ppm image, the rotate it clockwise at 0.5 RPS (revolutions per second), or 1 revolution every 2s around its center.
 
 Included files:
 
